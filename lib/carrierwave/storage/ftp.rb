@@ -23,9 +23,10 @@ module CarrierWave
 
         def store(file)
           connection do |ftp|
-            ftp.mkdir_p(::File.dirname "#{@uploader.ftp_folder}/#{path}")
+            ftp.mkdir_p(::File.dirname("#{@uploader.ftp_folder}/#{path}"), @uploader.file_permissions)
             ftp.chdir(::File.dirname "#{@uploader.ftp_folder}/#{path}")
             ftp.put(file.path, filename)
+            ftp.chmod(::File.dirname("#{@uploader.ftp_folder}/#{path}") + "/" + filename, @uploader.file_permissions)
           end
         end
 
@@ -105,6 +106,7 @@ class CarrierWave::Uploader::Base
   add_config :ftp_folder
   add_config :ftp_url
   add_config :ftp_passive
+  add_config :file_permissions
 
   configure do |config|
     config.storage_engines[:ftp] = "CarrierWave::Storage::FTP"
@@ -115,5 +117,6 @@ class CarrierWave::Uploader::Base
     config.ftp_folder = "/"
     config.ftp_url = "http://localhost"
     config.ftp_passive = false
+    config.file_permissions = "0775"
   end
 end

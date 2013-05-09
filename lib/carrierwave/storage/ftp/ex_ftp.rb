@@ -1,7 +1,13 @@
 require 'net/ftp'
 
 class ExFTP < Net::FTP
-  def mkdir_p(dir)
+  def chmod(file, permissions)
+    cmd = "CHMOD "+permissions + " " + file
+    Rails.logger.info cmd
+    site(cmd)
+  end
+
+  def mkdir_p(dir, permissions)
     parts = dir.split("/")
     if parts.first == "~"
       growing_path = ""
@@ -18,6 +24,7 @@ class ExFTP < Net::FTP
       begin
         mkdir(growing_path)
         chdir(growing_path)
+        chmod(growing_path, permissions)
       rescue Net::FTPPermError, Net::FTPTempError => e
       end
     end
